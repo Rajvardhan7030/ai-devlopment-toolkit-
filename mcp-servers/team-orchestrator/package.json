@@ -1,0 +1,19 @@
+{
+  "name": "mcp-team-orchestrator",
+  "version": "1.0.0",
+  "description": "MCP server for manager-led planning, worker contracts, and final delivery reports",
+  "main": "index.js",
+  "bin": {
+    "team-flow": "./team-flow.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "team-flow": "node team-flow.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "keywords": ["mcp", "team-orchestrator", "multi-agent"],
+  "license": "MIT"
+}

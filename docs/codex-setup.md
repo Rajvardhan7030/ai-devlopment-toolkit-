@@ -30,7 +30,28 @@ codex --agent debugger "fix the auth bug in login.py"
 
 # Run the reviewer agent
 codex --agent reviewer "check the API endpoints"
+
+# Run the manager-led team
+codex --agent manager "implement feature X using planning, coding, and QA review"
+
+# Run workers directly when needed
+codex --agent planner "plan the implementation for feature X"
+codex --agent coder "implement feature X"
+codex --agent qa_reviewer "verify and review feature X"
 ```
+
+## Example Team Flow
+
+```bash
+codex --agent manager "add bulk user import with validation, tests, and QA review"
+```
+
+Expected execution:
+- manager calls `team-orchestrator.create_planning_packet`
+- planner identifies files, risks, and verification plan
+- coder implements the scoped change
+- qa_reviewer runs verification and reports residual risk
+- manager calls `team-orchestrator.assemble_final_report`
 
 ## Configuring Agents
 
@@ -47,6 +68,28 @@ Your custom instructions here...
 allow_edit = true
 allow_shell = true
 allowed_commands = ["npm test", "pytest", "git status"]
+```
+
+## Adding MCP Servers
+
+Expose the orchestration helper and existing runtime helpers from your project root:
+
+```bash
+codex mcp add team-orchestrator ./mcp-servers/team-orchestrator
+codex mcp add test-runner ./mcp-servers/test-runner
+codex mcp add git-helper ./mcp-servers/git-helper
+```
+
+## Local Team Flow CLI
+
+Generate and persist the manager workflow artifacts locally:
+
+```bash
+node mcp-servers/team-orchestrator/team-flow.js init --task "add bulk user import" --output .team-flow
+node mcp-servers/team-orchestrator/team-flow.js worker --worker planner --status done --summary "planned implementation" --output .team-flow
+node mcp-servers/team-orchestrator/team-flow.js worker --worker coder --status done --summary "implemented feature" --changed_files api/users.py,services/import_users.py --output .team-flow
+node mcp-servers/team-orchestrator/team-flow.js worker --worker qa_reviewer --status done --summary "verified targeted tests" --verification "pytest tests/test_import_users.py" --output .team-flow
+node mcp-servers/team-orchestrator/team-flow.js finalize --output .team-flow
 ```
 
 ## Project Context
