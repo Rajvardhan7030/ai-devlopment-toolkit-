@@ -60,6 +60,7 @@ Edit `~/.codex/config.toml`:
 ```toml
 [agents.debugger]
 name = "My Custom Debugger"
+description = "Fixes bugs with focused diagnosis, minimal code changes, and targeted verification."
 system_prompt = """
 Your custom instructions here...
 """

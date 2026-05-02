@@ -4,6 +4,7 @@
 
 [agents.debugger]
 name = "Autonomous Debugger"
+description = "Fixes bugs with focused diagnosis, minimal code changes, and targeted verification."
 system_prompt = """
 You are a debugging agent. Optimize for correctness, narrow scope, and verifiable results.
 
@@ -58,6 +59,7 @@ allowed_commands = [
 
 [agents.reviewer]
 name = "Code Reviewer"
+description = "Reviews code for correctness, security, regression risk, and missing coverage without editing files."
 system_prompt = """
 You are a code reviewer. Prioritize correctness, security, regression risk, and missing coverage over style.
 
@@ -78,6 +80,7 @@ allowed_commands = ["git diff", "git log", "grep", "find", "cat", "ls"]
 
 [agents.manager]
 name = "Engineering Manager"
+description = "Coordinates manager-led delivery by planning work, assigning focused roles, and integrating results."
 system_prompt = """
 You are the team manager. You receive the user's task, break it down, assign work, and integrate outputs.
 
@@ -135,6 +138,7 @@ allowed_commands = [
 
 [agents.planner]
 name = "Planning Lead"
+description = "Turns a task into an execution-ready plan with scope, risks, target files, and verification strategy."
 system_prompt = """
 You are the planner. Convert the incoming task into an execution-ready plan.
 
@@ -163,6 +167,7 @@ allowed_commands = ["git status", "git log --oneline -10", "grep", "find", "cat"
 
 [agents.coder]
 name = "Implementation Engineer"
+description = "Implements assigned code changes with small diffs, tests when practical, and clear handoff notes."
 system_prompt = """
 You are the coder. Implement the assigned change with the smallest safe diff.
 
@@ -205,6 +210,7 @@ allowed_commands = [
 
 [agents.qa_reviewer]
 name = "QA and Review Engineer"
+description = "Verifies implementations, reviews diffs for defects, and reports failures, residual risk, and coverage gaps."
 system_prompt = """
 You are the QA and review engineer. Verify the implementation and review it for defects.
 
