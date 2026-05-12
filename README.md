@@ -1,120 +1,100 @@
 # AI DevTools Toolkit
 
-AI DevTools Toolkit helps you turn an AI coding assistant into a small software team.
+AI DevTools Toolkit turns Gemini CLI or Codex CLI into a structured software delivery team. It provides agent roles, command prompts, MCP helper servers, and local workflow generators so an AI assistant can research, plan, code, review, test, and report work instead of responding with one unstructured answer.
 
-Instead of asking one agent to do everything, you can use:
-- a `manager` to understand the request
-- a `planner` to break the work into steps
-- a `coder` to make the change
-- a `qa reviewer` to test and review the result
+The toolkit is local-first. It is designed for developers, small teams, founders, and non-technical users who want safer AI-assisted development with visible planning, scoped implementation, verification evidence, and final delivery reports.
 
-It works with **Gemini CLI** and **Codex CLI**.
+## What It Solves
 
----
+Normal AI coding sessions often mix planning, implementation, review, and testing in one conversation. That makes it hard to know what was changed, what was verified, and what risks remain.
 
-## 5-Minute Quick Start
+This toolkit separates responsibilities:
 
-If you want the fastest path:
-
-1. Install `Gemini CLI` or `Codex CLI`.
-2. Open your project folder in the terminal.
-3. Run:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Rajvardhan7030/ai-devlopment-toolkit-/main/install.sh | bash
+```text
+User request
+  -> Manager
+  -> Research / planning artifacts
+  -> Planner
+  -> Coder
+  -> QA reviewer
+  -> Tests and final report
 ```
 
-4. Try one of these:
+The result is a repeatable workflow where each stage has a clear job and a written output.
 
-```bash
-gemini /review "review this project"
-gemini /debug-fix "fix the login bug"
-gemini /feature-delivery "build this feature using planning, coding, testing, and review"
+## Key Features
+
+- Gemini CLI commands for review, debugging, refactoring, team tasks, and feature delivery.
+- Codex CLI agent configuration for manager, planner, coder, reviewer, debugger, and QA reviewer roles.
+- MCP servers for test execution, git inspection, and team orchestration.
+- Local `team-flow` CLI for generating planning packets, worker contracts, worker result records, and final reports.
+- Full lifecycle archive generator for non-technical users and manager agents.
+- Starter context files: `GEMINI.md` and `AGENTS.md`.
+- Node built-in tests for the team orchestration lifecycle generator.
+
+## Repository Structure
+
+```text
+.
+|-- .codex/                         # Codex CLI configuration template
+|-- .gemini/
+|   |-- agent/                      # Gemini agent role prompts
+|   `-- commands/                   # Gemini slash command definitions
+|-- docs/
+|   |-- codex-setup.md              # Codex setup guide
+|   |-- gemini-setup.md             # Gemini setup guide
+|   `-- writing-skills.md           # Skill authoring guide
+|-- mcp-servers/
+|   |-- git-helper/                 # Python MCP server for safe git inspection
+|   |-- team-orchestrator/          # Node MCP server and local workflow CLI
+|   `-- test-runner/                # Node MCP server for structured test runs
+|-- tests/                          # Node test files
+|-- AGENTS.md                       # Codex project context template
+|-- GEMINI.md                       # Gemini project context template
+|-- PROJECT-DELIVERY-REPORT.md      # Latest generated delivery report
+|-- install.sh                      # Installer for Gemini/Codex assets
+`-- README.md
 ```
 
-Or with Codex:
+Local workflow runs may also create `.ai-manager`, `.ai-research`, `.ai-plan`, `.ai-coding`, `.ai-review`, and `.ai-testing`. These are audit artifacts for the current run and normally should not be committed unless you intentionally want to preserve them.
+
+## Requirements
+
+- `git`
+- Node.js 18 or newer for the Node MCP servers and `team-flow` CLI
+- Gemini CLI or Codex CLI
+- Python 3 for the `git-helper` MCP server
+
+Check your environment:
 
 ```bash
-codex --agent reviewer "review this project"
-codex --agent debugger "fix the login bug"
-codex --agent manager "build this feature using planning, coding, testing, and review"
+git --version
+node --version
+python3 --version
+gemini --version
+codex --version
 ```
 
----
-
-## Summary
-
-This project gives you ready-made prompts, agent roles, and helper tools so you can say things like:
-- "review my code"
-- "fix this bug"
-- "deliver this feature using planning, coding, and testing"
-
-The toolkit is useful if you want:
-- clearer AI workflows
-- safer code changes
-- better testing and review habits
-- a manager-style multi-agent setup
-
-If you are not technical, you can think of it like this:
-- the `manager` receives your request
-- the `planner` decides the steps
-- the `coder` does the implementation
-- the `qa reviewer` checks whether it works
-
----
-
-## Who This Is For
-
-This project is useful for:
-- developers who want more structured AI help
-- teams who want safer AI-assisted coding
-- founders or product people who want the AI to behave more like a small engineering team
-- non-technical users who want a manager-style workflow instead of raw coding prompts
-
-This project may not be ideal if:
-- you want a fully automatic no-review production deployment system
-- you do not want to use a terminal
-- you are looking for a hosted web app instead of a local toolkit
-
----
-
-## What This Project Includes
-
-- Gemini commands such as `/debug-fix`, `/review`, `/team-task`, and `/feature-delivery`
-- Codex agent configurations such as `manager`, `debugger`, `planner`, `coder`, and `qa_reviewer`
-- MCP helper servers for:
-  - test running
-  - git inspection
-  - team orchestration
-- a local CLI that can save the team workflow as JSON files
-
----
+You only need one of `gemini` or `codex` to use the toolkit. You can install both.
 
 ## Installation
 
-### Before You Start
+### One-Command Install
 
-You need:
-- [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Codex CLI](https://github.com/openai/codex)
-- `git`
-- `node` for the MCP servers and local CLI wrapper
-
-Check what is installed:
-
-```bash
-gemini --version
-codex --version
-git --version
-node --version
-```
-
-### Quick Install
-
-From inside your project folder:
+Run this from the project where you want to use the toolkit:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Rajvardhan7030/ai-devlopment-toolkit-/main/install.sh | bash
 ```
+
+The installer:
+
+- detects Gemini CLI and Codex CLI
+- asks whether to install project-level or global assets
+- installs Gemini commands and agents when Gemini is available
+- installs Codex config when Codex is available
+- copies `GEMINI.md` and `AGENTS.md` into the current project for project-level installs
+- backs up an existing `~/.codex/config.toml` before replacing it
 
 ### Manual Install
 
@@ -123,88 +103,36 @@ git clone https://github.com/Rajvardhan7030/ai-devlopment-toolkit-.git .gemini
 bash .gemini/install.sh
 ```
 
-### What Installation Does
+### Project Context Files
 
-The installer:
-- copies Gemini command files
-- copies Gemini agent files
-- copies Codex config
-- copies starter context files such as `GEMINI.md` and `AGENTS.md`
+After installation, edit:
 
----
+- `GEMINI.md` for Gemini CLI project rules
+- `AGENTS.md` for Codex CLI project rules
 
-## What Happens After Installation
+Add your stack, package manager, test command, lint command, deployment rules, and security requirements.
 
-After installation, you can give plain requests such as:
-- "review my auth code"
-- "fix this bug"
-- "implement this feature using manager, planner, coder, and QA"
+## Quick Start
 
-The toolkit then gives the AI a more structured way to respond.
+### Gemini
 
-Instead of one generic answer, the workflow can:
-- inspect the code
-- create a plan
-- apply a scoped change
-- run tests
-- report what was verified
-
----
-
-## How To Use
-
-### 1. Simple Bug Fix
-
-If you want the AI to investigate and try to fix a bug:
-
-Gemini:
 ```bash
+gemini /review "review this project"
 gemini /debug-fix "fix the login bug"
-```
-
-Codex:
-```bash
-codex --agent debugger "fix the login bug"
-```
-
-### 2. Code Review
-
-If you want the AI to inspect code and report problems:
-
-Gemini:
-```bash
-gemini /review "review the auth module"
-```
-
-Codex:
-```bash
-codex --agent reviewer "review the auth module"
-```
-
-### 3. Multi-Agent Team Workflow
-
-If you want one manager and three workers:
-
-Gemini:
-```bash
 gemini /feature-delivery "add bulk user import with validation, tests, and review"
 ```
 
-Codex:
+### Codex
+
 ```bash
+codex --agent reviewer "review this project"
+codex --agent debugger "fix the login bug"
 codex --agent manager "add bulk user import with validation, tests, and review"
 ```
 
-What happens:
-1. The manager understands your request.
-2. The planner turns it into a clear plan.
-3. The coder implements the change.
-4. The QA reviewer checks tests, regressions, and risk.
-5. The manager returns the final result.
+### Full Lifecycle Archive
 
-### 4. Generate a Full Lifecycle Archive
-
-If you are non-technical and want the toolkit to create the research, planning, coding, review, testing, and delivery-report structure for an idea:
+Use this when you want the toolkit to create the complete research, planning, coding, review, testing, and delivery-report structure for an idea:
 
 ```bash
 node mcp-servers/team-orchestrator/team-flow.js lifecycle \
@@ -214,279 +142,371 @@ node mcp-servers/team-orchestrator/team-flow.js lifecycle \
   --done "production-ready workflow"
 ```
 
-This writes `.ai-manager`, `.ai-research`, `.ai-plan`, `.ai-coding`, `.ai-review`, `.ai-testing`, and `PROJECT-DELIVERY-REPORT.md` in the current project.
+This writes:
 
----
+- `.ai-manager/project-charter.md`
+- `.ai-manager/stage-log.json`
+- `.ai-research/brief.md`
+- `.ai-research/research-report.md`
+- `.ai-plan/architecture.md`
+- `.ai-plan/execution-plan.md`
+- `.ai-plan/worker-contracts.json`
+- `.ai-coding/current-task.md`
+- `.ai-review/review-brief.md`
+- `.ai-testing/test-manifest.md`
+- `PROJECT-DELIVERY-REPORT.md`
 
-## Example Request
-
-Here is a simple real-world style request:
-
-```text
-I want to add bulk user import with validation, tests, and review.
-```
-
-With Gemini:
-
-```bash
-gemini /feature-delivery "add bulk user import with validation, tests, and review"
-```
-
-With Codex:
+To generate the archive somewhere else:
 
 ```bash
-codex --agent manager "add bulk user import with validation, tests, and review"
+node mcp-servers/team-orchestrator/team-flow.js lifecycle \
+  --idea "build a customer support dashboard" \
+  --output /tmp/support-dashboard-workflow
 ```
 
-Expected result:
-- manager understands the feature
-- planner defines steps and risks
-- coder makes the change
-- QA reviewer checks it
-- manager returns a final summary
-
----
-
-## Main Commands And Agents
-
-### Gemini Commands
+## Gemini Commands
 
 | Command | Purpose |
-|---------|---------|
+| --- | --- |
 | `/debug-fix` | Investigate, fix, and verify a bug |
 | `/review` | Review code and report issues |
 | `/refactor` | Improve code without changing behavior |
 | `/team-task` | Run a manager-led workflow |
 | `/feature-delivery` | Run a stricter feature workflow with worker contracts |
 
-### Gemini Agents
+## Gemini Agents
 
 | Agent | Role |
-|-------|------|
+| --- | --- |
 | `@manager` | Coordinates the full workflow |
-| `@planner` | Creates the implementation plan |
-| `@coder` | Makes the code change |
+| `@planner` | Creates implementation plans |
+| `@coder` | Makes scoped code changes |
 | `@qa-reviewer` | Tests and reviews the result |
-| `@debugger` | Focuses on bug fixing |
-| `@reviewer` | Focuses on review only |
-| `@fixer` | Focuses on making a scoped fix |
-| `@verifier` | Focuses on verification |
+| `@debugger` | Focuses on bug investigation and fixes |
+| `@reviewer` | Reviews code without implementing |
+| `@fixer` | Applies focused fixes |
+| `@verifier` | Runs verification and reports evidence |
+| `@architect` | Helps with architecture and design analysis |
 
-### Codex Agents
+## Codex Agents
 
 | Agent | Role |
-|-------|------|
+| --- | --- |
 | `manager` | Coordinates the multi-agent team |
-| `planner` | Creates the implementation plan |
-| `coder` | Makes the code change |
-| `qa_reviewer` | Tests and reviews the result |
-| `debugger` | Fixes bugs |
-| `reviewer` | Reviews code |
-
----
-
-## How The Team Workflow Works
-
-The team system uses a helper called `team-orchestrator`.
-
-It creates:
-- a manager brief
-- worker contracts
-- a final delivery report
-
-The flow looks like this:
-
-```text
-Client Request
-  -> Manager
-  -> Planning Packet
-  -> Planner / Coder / QA Reviewer
-  -> Final Report
-```
-
-This makes the AI workflow easier to follow and reduces vague or mixed responsibilities.
-
----
+| `planner` | Creates implementation plans |
+| `coder` | Implements scoped changes |
+| `qa_reviewer` | Tests and reviews implementation quality |
+| `debugger` | Fixes bugs with focused diagnosis |
+| `reviewer` | Reviews code for correctness, security, and regression risk |
 
 ## MCP Servers
 
-MCP servers are helper tools the agents can use.
+MCP servers expose helper tools to compatible AI clients.
 
-| Server | What It Does |
-|--------|---------------|
-| `test-runner` | Runs tests and returns structured output |
-| `git-helper` | Checks git status, diff, branches, and logs |
-| `team-orchestrator` | Builds planning packets, worker contracts, and final reports |
+| Server | Location | Runtime | Purpose |
+| --- | --- | --- | --- |
+| `team-orchestrator` | `mcp-servers/team-orchestrator` | Node.js | Builds planning packets, worker contracts, worker result records, lifecycle artifacts, and final reports |
+| `test-runner` | `mcp-servers/test-runner` | Node.js | Detects common project types and runs tests with structured output |
+| `git-helper` | `mcp-servers/git-helper` | Python | Reports git status, diffs, recent logs, branch info, and safe-to-edit checks |
 
----
-
-## Local Team Flow CLI
-
-If you want to save the manager workflow as files on your machine, use the local CLI wrapper.
-
-Example:
+### Add MCP Servers To Gemini
 
 ```bash
-node mcp-servers/team-orchestrator/team-flow.js init --task "add bulk user import" --output .team-flow
-node mcp-servers/team-orchestrator/team-flow.js worker --worker planner --status done --summary "planned implementation" --output .team-flow
-node mcp-servers/team-orchestrator/team-flow.js worker --worker coder --status done --summary "implemented feature" --changed_files api/users.py,services/import_users.py --output .team-flow
-node mcp-servers/team-orchestrator/team-flow.js worker --worker qa_reviewer --status done --summary "verified targeted tests" --verification "pytest tests/test_import_users.py" --output .team-flow
+gemini mcp add team-orchestrator ./mcp-servers/team-orchestrator
+gemini mcp add test-runner ./mcp-servers/test-runner
+gemini mcp add git-helper ./mcp-servers/git-helper
+```
+
+### Add MCP Servers To Codex
+
+```bash
+codex mcp add team-orchestrator ./mcp-servers/team-orchestrator
+codex mcp add test-runner ./mcp-servers/test-runner
+codex mcp add git-helper ./mcp-servers/git-helper
+```
+
+## Team-Orchestrator CLI
+
+The local CLI lives at:
+
+```bash
+node mcp-servers/team-orchestrator/team-flow.js
+```
+
+### `init`
+
+Creates a planning packet and worker contracts.
+
+```bash
+node mcp-servers/team-orchestrator/team-flow.js init \
+  --task "add bulk user import" \
+  --success "CSV upload,validation errors,tests pass" \
+  --constraints "no database schema rewrite" \
+  --files "api/users.py,services/import_users.py" \
+  --risks "partial writes,duplicate emails" \
+  --verification_target "pytest tests/test_import_users.py" \
+  --output .team-flow
+```
+
+Creates:
+
+- `.team-flow/planning-packet.json`
+- `.team-flow/planner-contract.json`
+- `.team-flow/coder-contract.json`
+- `.team-flow/qa-reviewer-contract.json`
+
+### `worker`
+
+Records a worker result in the same output directory.
+
+```bash
+node mcp-servers/team-orchestrator/team-flow.js worker \
+  --worker coder \
+  --status done \
+  --summary "implemented CSV import validation" \
+  --changed_files "api/users.py,services/import_users.py,tests/test_import_users.py" \
+  --verification "pytest tests/test_import_users.py" \
+  --output .team-flow
+```
+
+Supported fields:
+
+- `--worker`
+- `--status`
+- `--summary`
+- `--changed_files`
+- `--verification`
+- `--findings`
+- `--blockers`
+- `--residual_risk`
+- `--output`
+
+### `finalize`
+
+Combines planning and worker outputs into a final JSON report.
+
+```bash
 node mcp-servers/team-orchestrator/team-flow.js finalize --output .team-flow
 ```
 
-This creates files such as:
-- `planning-packet.json`
-- `planner-contract.json`
-- `coder-contract.json`
-- `qa-reviewer-contract.json`
-- `planner-result.json`
-- `coder-result.json`
-- `qa_reviewer-result.json`
-- `final-report.json`
+Creates:
 
----
+- `.team-flow/final-report.json`
 
-## What You Will See As Output
+### `lifecycle`
 
-Depending on the workflow, the output may include:
-- a review report
-- a bug diagnosis
-- a plan
-- changed files
-- verification results
-- residual risks
-- a final delivery summary
-
-This is helpful because you can see not only what changed, but also what was checked.
-
----
-
-## Recommended Setup
-
-Copy the starter context files into your project:
+Creates a complete five-stage workflow archive from a plain-language idea.
 
 ```bash
-cp .gemini/GEMINI.md ./GEMINI.md
-cp .gemini/AGENTS.md ./AGENTS.md
+node mcp-servers/team-orchestrator/team-flow.js lifecycle \
+  --idea "create an AI workflow that researches, plans, codes, reviews, and tests automatically" \
+  --user "non-technical operator" \
+  --constraints "local-first,no paid services required" \
+  --done "production-ready workflow archive" \
+  --domain "AI-assisted software development tooling" \
+  --output .
 ```
 
-Then edit them with:
-- your project rules
-- your test commands
-- your stack details
-- coding standards for your team
+Required:
 
----
+- `--idea`
 
-## Rules And Safety
+Optional:
 
-This toolkit is designed to be safer than free-form AI editing.
+- `--user`
+- `--constraints`
+- `--done`
+- `--domain`
+- `--output`
 
-Core rules:
-- agents should inspect the code before editing
-- agents should keep changes small and focused
-- agents should not invent test results
-- agents should report what was verified
-- agents should avoid touching unrelated files
-- agents should not overwrite your existing work in a dirty git tree
-- agents should stop and report when the request is unclear
+If `--idea` is missing, the command exits non-zero with:
 
-Practical safety guardrails:
-- runs `git status` before editing
-- favors targeted tests before broad test suites
-- keeps manager and worker roles separate
-- requires verification reporting
+```text
+Missing required --idea
+```
 
-You should still review AI-generated changes before merging them.
+## Test Runner MCP Behavior
 
----
+`test-runner` detects common project files and chooses a test command:
 
-## FAQ
+| Project marker | Command |
+| --- | --- |
+| `package.json` with `scripts.test` | `npm test` |
+| `package.json` without `scripts.test` | `npx jest` |
+| `pyproject.toml` or `pytest.ini` | `pytest -xvs` |
+| `Cargo.toml` | `cargo test` |
+| `go.mod` | `go test ./...` |
+| `pom.xml` | `mvn test` |
 
-### Do I need to know programming to use this?
+It returns structured JSON with success status, command, summary counts when detectable, failures, and the last part of test output.
 
-Not fully, but basic terminal comfort helps. If you are non-technical, start with:
-- `/review`
-- `/debug-fix`
-- `/feature-delivery`
+## Git Helper MCP Behavior
 
-### Does this automatically change my code?
+`git-helper` exposes:
 
-Some workflows can propose or apply changes depending on the CLI and approval settings. You should still review the output.
+- `git_status`
+- `git_diff`
+- `git_log`
+- `git_branch`
+- `check_safe_to_edit`
 
-### Is this safe for production?
+It is intentionally read-oriented. It helps agents inspect state before editing and avoid overwriting uncommitted work.
 
-It is safer than unstructured prompting, but it is still an AI-assisted toolkit. Human review is still recommended.
+## Running Tests For This Repository
 
-### What is the difference between `team-task` and `feature-delivery`?
+The current test suite uses Node's built-in test runner.
 
-- `/team-task` is a general manager-led workflow
-- `/feature-delivery` is a stricter version focused on feature implementation with worker contracts
+```bash
+node --test tests/*.test.js
+```
 
-### What is `team-orchestrator`?
+Coverage:
 
-It is a helper that creates:
-- a manager brief
-- worker contracts
-- final delivery reports
+```bash
+node --test --experimental-test-coverage tests/*.test.js
+```
 
-### Can I use this without Gemini?
+You can also run the package-local script from `mcp-servers/team-orchestrator`:
 
-Yes, if you use Codex CLI.
+```bash
+cd mcp-servers/team-orchestrator
+npm test
+```
 
-### Can I use this without Codex?
+No external test dependency is required for the current `team-orchestrator` tests.
 
-Yes, if you use Gemini CLI.
+## Development Workflow
 
----
+Recommended steps for changes:
 
-## Contribution Guide
+1. Run `git status --short`.
+2. Inspect the relevant files before editing.
+3. Keep changes scoped to one workflow or module.
+4. Update tests when behavior changes.
+5. Run targeted tests.
+6. Run broader tests if the change affects shared helpers.
+7. Update README or setup docs when commands, outputs, or behavior change.
 
-Contributions are welcome.
+For this repository, the main verification command is:
 
-### Good Contributions
+```bash
+node --test tests/*.test.js
+```
 
-- improving prompts
-- adding safer workflows
-- improving docs for beginners
-- adding useful MCP tools
-- fixing bugs in installer or orchestration logic
+## Safety Model
 
-### Before You Contribute
+This toolkit is designed to make AI-assisted development safer than free-form prompting.
 
-- keep changes focused
-- do not break existing command names unless necessary
-- update docs when behavior changes
-- keep prompts clear and production-oriented
-- prefer small pull requests over large rewrites
+Guardrails:
 
-### Basic Contribution Steps
+- role separation between manager, planner, coder, reviewer, and tester
+- scoped worker contracts
+- explicit verification reporting
+- git status checks before edits
+- review-first mode for review requests
+- no invented test results
+- no silent failure handling
+- audit artifacts for long workflows
 
-1. Fork the repository.
-2. Create a branch for your change.
-3. Make your update.
-4. Test the part you changed.
-5. Update the README or setup docs if needed.
-6. Open a pull request with a clear summary.
+Limitations:
 
-If you are adding a new skill, see [docs/writing-skills.md](docs/writing-skills.md).
-
----
+- It does not replace human judgment.
+- It does not guarantee production safety by itself.
+- It does not automatically deploy code.
+- It depends on the underlying AI client approval settings.
+- The lifecycle generator creates structured artifacts; a manager or user still needs to complete real research, implementation, review, and testing for a specific product.
 
 ## For Non-Technical Users
 
-If you are not a developer, the easiest way to think about this project is:
-- you type a request
-- the `manager` understands it
-- the workers split the work
-- the system gives back a result and what was checked
+Start with the lifecycle command:
 
-Start with:
-- `/review` if you want an explanation of problems
-- `/debug-fix` if you want help fixing a bug
-- `/feature-delivery` if you want the AI to behave like a small team
+```bash
+node mcp-servers/team-orchestrator/team-flow.js lifecycle --idea "describe your project idea"
+```
 
----
+Then open:
+
+- `.ai-manager/project-charter.md` to confirm the problem and definition of done
+- `.ai-research/research-report.md` to fill or review sources and risks
+- `.ai-plan/execution-plan.md` to see the implementation phases
+- `.ai-review/review-brief.md` to understand what review must check
+- `.ai-testing/test-manifest.md` to see how the result should be verified
+- `PROJECT-DELIVERY-REPORT.md` for the final summary
+
+For active AI work, use:
+
+```bash
+gemini /feature-delivery "your request"
+```
+
+or:
+
+```bash
+codex --agent manager "your request"
+```
+
+## Troubleshooting
+
+| Problem | Likely Cause | Fix |
+| --- | --- | --- |
+| `gemini` command not found | Gemini CLI is not installed | Install Gemini CLI, then rerun the installer |
+| `codex` command not found | Codex CLI is not installed | Install Codex CLI, then rerun the installer |
+| Agent not found | Config was not installed or loaded | Check `.gemini/agent` or `~/.codex/config.toml` |
+| MCP server not available | MCP server was not added to the client | Run the relevant `gemini mcp add` or `codex mcp add` command |
+| Tests not detected | Project does not use a recognized test marker | Add the project test command to context files or run tests manually |
+| `Missing required --idea` | `lifecycle` was run without an idea | Add `--idea "your project idea"` |
+| Dirty working tree warning | Existing uncommitted changes | Commit, stash, or explicitly tell the agent how to handle them |
+
+## FAQ
+
+### Is this a hosted app?
+
+No. It is a local toolkit for Gemini CLI, Codex CLI, and MCP-compatible workflows.
+
+### Does it write code automatically?
+
+It can, depending on the AI client, agent, and approval mode. The toolkit's job is to structure the work and encourage scoped, reviewed, verified changes.
+
+### Can non-technical users use it?
+
+Yes, but basic terminal comfort helps. The lifecycle generator is the easiest entry point because it creates readable workflow files from a plain idea.
+
+### Can I use it with only Gemini?
+
+Yes.
+
+### Can I use it with only Codex?
+
+Yes.
+
+### Should I commit `.ai-*` folders?
+
+Usually no. Treat them as local audit artifacts unless you intentionally want to preserve a workflow run in git.
+
+### What is the difference between `.team-flow` and `.ai-*`?
+
+`.team-flow` is the compact JSON workflow output from the `init`, `worker`, and `finalize` commands. `.ai-*` is the full five-stage lifecycle archive from the `lifecycle` command or manager pipeline.
+
+## Contributing
+
+Good contributions include:
+
+- clearer prompts and agent roles
+- safer workflow gates
+- better beginner documentation
+- new MCP helper tools
+- tests for orchestration behavior
+- installer fixes
+
+Before opening a pull request:
+
+1. Keep the change focused.
+2. Preserve existing command names unless there is a strong reason to change them.
+3. Update docs for behavior changes.
+4. Add or update tests for code changes.
+5. Run `node --test tests/*.test.js` when touching `team-orchestrator`.
+
+For skill authoring, read [docs/writing-skills.md](docs/writing-skills.md).
 
 ## License
 

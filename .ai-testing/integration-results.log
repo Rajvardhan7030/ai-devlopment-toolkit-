@@ -1,0 +1,21 @@
+{
+  "status": "generated",
+  "output_dir": "/tmp/team-flow-lifecycle-check",
+  "files": [
+    ".ai-manager/project-charter.md",
+    ".ai-manager/stage-log.json",
+    ".ai-research/brief.md",
+    ".ai-research/research-report.md",
+    ".ai-plan/inputs.txt",
+    ".ai-plan/planner-instructions.md",
+    ".ai-plan/architecture.md",
+    ".ai-plan/execution-plan.md",
+    ".ai-plan/worker-contracts.json",
+    ".ai-coding/current-task.md",
+    ".ai-coding/changes.log",
+    ".ai-review/review-brief.md",
+    ".ai-review/iteration-count.txt",
+    ".ai-testing/test-manifest.md",
+    "PROJECT-DELIVERY-REPORT.md"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "stages": [
+    {
+      "stage": "research",
+      "start": "2026-05-12T00:00:00+05:30",
+      "end": "2026-05-12T00:00:00+05:30",
+      "status": "passed",
+      "iterations": 1
+    },
+    {
+      "stage": "plan",
+      "start": "2026-05-12T00:00:00+05:30",
+      "end": "2026-05-12T00:00:00+05:30",
+      "status": "passed",
+      "iterations": 1
+    },
+    {
+      "stage": "coding",
+      "start": "2026-05-12T00:00:00+05:30",
+      "end": "2026-05-12T00:00:00+05:30",
+      "status": "passed",
+      "iterations": 1
+    },
+    {
+      "stage": "review",
+      "start": "2026-05-12T00:00:00+05:30",
+      "end": "2026-05-12T00:00:00+05:30",
+      "status": "passed",
+      "iterations": 1
+    },
+    {
+      "stage": "test",
+      "start": "2026-05-12T00:00:00+05:30",
+      "end": "2026-05-12T00:00:00+05:30",
+      "status": "passed",
+      "iterations": 1
+    }
+  ]
+}

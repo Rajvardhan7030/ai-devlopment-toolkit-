@@ -1,0 +1,15 @@
+git diff --stat:
+ README.md                                  |  14 ++
+ mcp-servers/team-orchestrator/lib.js       | 279 +++++++++++++++++++++++++++++
+ mcp-servers/team-orchestrator/package.json |   3 +-
+ mcp-servers/team-orchestrator/team-flow.js |  13 ++
+
+Additional untracked test file:
+ tests/team-flow-lifecycle.test.js
+
+Summary:
+- Added a deterministic lifecycle artifact builder.
+- Added `team-flow lifecycle --idea "..."` CLI support.
+- Added Node built-in tests for artifact generation, CLI output, and validation failure.
+- Documented the lifecycle archive command in README.
+- Refactored file-writing into a library function so tests do not need sandbox-blocked child processes.

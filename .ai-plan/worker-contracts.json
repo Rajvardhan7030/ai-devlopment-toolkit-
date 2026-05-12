@@ -1,0 +1,28 @@
+{
+  "coder": {
+    "module": "team-orchestrator lifecycle command",
+    "allowed_scope": [
+      "mcp-servers/team-orchestrator/lib.js",
+      "mcp-servers/team-orchestrator/team-flow.js",
+      "mcp-servers/team-orchestrator/package.json",
+      "tests/team-flow-lifecycle.test.js",
+      "README.md"
+    ],
+    "acceptance_criteria": [
+      "Lifecycle command creates all required stage files",
+      "Generated worker contracts are valid JSON",
+      "Missing idea fails clearly",
+      "No external dependencies are added"
+    ]
+  },
+  "reviewer": {
+    "mandate": "Assume this code is broken until proven otherwise",
+    "checks": [
+      "Static logic and edge cases",
+      "Security posture around path and shell handling",
+      "Architectural compliance with the plan",
+      "Test quality and meaningful assertions",
+      "Performance and resource handling"
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+.ai-manager/project-charter.md
+.ai-research/brief.md
+.ai-research/research-report.md
