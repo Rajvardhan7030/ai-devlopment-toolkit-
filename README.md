@@ -202,6 +202,20 @@ What happens:
 4. The QA reviewer checks tests, regressions, and risk.
 5. The manager returns the final result.
 
+### 4. Generate a Full Lifecycle Archive
+
+If you are non-technical and want the toolkit to create the research, planning, coding, review, testing, and delivery-report structure for an idea:
+
+```bash
+node mcp-servers/team-orchestrator/team-flow.js lifecycle \
+  --idea "automate the manual research, planning, development, review, and testing cycle" \
+  --user "non-technical founder" \
+  --constraints "budget-sensitive,local-first" \
+  --done "production-ready workflow"
+```
+
+This writes `.ai-manager`, `.ai-research`, `.ai-plan`, `.ai-coding`, `.ai-review`, `.ai-testing`, and `PROJECT-DELIVERY-REPORT.md` in the current project.
+
 ---
 
 ## Example Request

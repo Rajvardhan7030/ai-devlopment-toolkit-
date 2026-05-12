@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from "fs";
+import { dirname, resolve } from "path";
+
 export function normalizeList(value) {
   if (!value) return [];
   if (Array.isArray(value)) {
@@ -199,5 +202,281 @@ export function createFinalReport(args = {}) {
       ...(qaResult.blockers || []),
     ],
     final_status: qaResult.status || coderResult.status || plannerResult.status || "unknown",
+  };
+}
+
+function mdList(items) {
+  const normalized = normalizeList(items);
+  if (normalized.length === 0) return "- None";
+  return normalized.map(item => `- ${item}`).join("\n");
+}
+
+function jsonBlock(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function buildLifecycleWorkerContracts(idea, constraints, done) {
+  return {
+    research: {
+      objective: "Validate the domain, similar solutions, feasibility, risks, and sources before implementation planning.",
+      inputs: ["Project charter", "User idea", "Known constraints"],
+      deliverable: ".ai-research/research-report.md",
+      acceptance_criteria: [
+        "Contains at least three source references",
+        "Contains a risk matrix",
+        "Identifies technical feasibility and recommended architecture patterns",
+      ],
+    },
+    planner: {
+      objective: "Convert research into a scoped implementation blueprint.",
+      inputs: [".ai-research/research-report.md"],
+      deliverables: [
+        ".ai-plan/architecture.md",
+        ".ai-plan/execution-plan.md",
+        ".ai-plan/worker-contracts.json",
+      ],
+      acceptance_criteria: [
+        "Architecture has no undefined dependencies",
+        "Execution plan has phases, acceptance criteria, and test strategy",
+        "Worker contracts define allowed scope and review requirements",
+      ],
+    },
+    coder: buildWorkerContract("coder", buildManagerBrief({
+      task: idea,
+      constraints,
+      success_criteria: done,
+      verification_target: "Run generated test manifest commands and record results.",
+    })),
+    reviewer: {
+      objective: "Assume the implementation is broken until proven otherwise.",
+      inputs: [".ai-plan/architecture.md", ".ai-plan/execution-plan.md", "Project code", "tests/"],
+      deliverable: ".ai-review/review-report.md",
+      acceptance_criteria: [
+        "No critical or high-severity issues remain",
+        "Security, architecture, test quality, and performance are reviewed",
+        "High-severity findings produce fix tickets before testing proceeds",
+      ],
+    },
+    tester: {
+      objective: "Execute the test manifest and summarize pass/fail evidence.",
+      inputs: [".ai-testing/test-manifest.md"],
+      deliverables: [".ai-testing/unit-test-results.log", ".ai-testing/coverage.log"],
+      acceptance_criteria: [
+        "All required tests pass",
+        "Failures produce a diagnostic report",
+        "Final delivery report lists verification evidence",
+      ],
+    },
+  };
+}
+
+export function buildLifecycleArtifacts(args = {}) {
+  const idea = String(args.idea || args.task || "").trim();
+  if (!idea) {
+    throw new Error("Missing required --idea");
+  }
+
+  const user = String(args.user || "Non-technical user").trim();
+  const constraints = normalizeList(args.constraints);
+  const done = normalizeList(args.done || args.success || "Production-ready workflow artifacts with validation gates");
+  const domain = String(args.domain || "AI-assisted software development tooling").trim();
+  const contracts = buildLifecycleWorkerContracts(idea, constraints, done);
+
+  const artifacts = {
+    ".ai-manager/project-charter.md": `# Project Charter
+
+## Core Problem
+${idea}
+
+## End User
+${user}
+
+## Constraints
+${mdList(constraints)}
+
+## Definition of Done
+${mdList(done)}
+`,
+    ".ai-manager/stage-log.json": jsonBlock({
+      stages: [
+        { stage: "research", status: "pending", iterations: 0 },
+        { stage: "plan", status: "pending", iterations: 0 },
+        { stage: "coding", status: "pending", iterations: 0 },
+        { stage: "review", status: "pending", iterations: 0 },
+        { stage: "test", status: "pending", iterations: 0 },
+      ],
+    }),
+    ".ai-research/brief.md": `# Research Brief
+
+## User Idea
+${idea}
+
+## Intended Outcome
+Create an auditable workflow that turns the idea into research, planning, coding, review, testing, and final delivery artifacts.
+
+## Target Domain
+${domain}
+
+## Constraints
+${mdList(constraints)}
+
+## Similar Solutions To Analyze
+- OpenAI Codex and Codex CLI
+- GitHub Copilot code review
+- Local MCP-based developer workflow tools
+- CI/CD quality-gate workflows
+`,
+    ".ai-research/research-report.md": `# Research Report
+
+## Domain Landscape
+Use this file to record verified research before implementation planning starts.
+
+## Verified Sources
+- Source 1:
+- Source 2:
+- Source 3:
+
+## Technical Feasibility
+Document feasibility, constraints, and recommended implementation shape.
+
+## Risk Matrix
+| Risk | Severity | Likelihood | Mitigation |
+| --- | --- | --- | --- |
+| Unvalidated requirements | High | Medium | Confirm project charter and acceptance criteria before coding. |
+| Scope creep | Medium | Medium | Enforce worker contracts and allowed file scopes. |
+| Weak verification | High | Medium | Require test manifest execution and review sign-off. |
+`,
+    ".ai-plan/inputs.txt": ".ai-manager/project-charter.md\n.ai-research/brief.md\n.ai-research/research-report.md\n",
+    ".ai-plan/planner-instructions.md": `# Planner Instructions
+
+Read the project charter and research report. Produce architecture, execution plan, and worker contracts before coding starts.
+`,
+    ".ai-plan/architecture.md": `# Architecture
+
+## System Diagram
+\`\`\`text
+User idea -> Research -> Plan -> Code -> Review -> Test -> Delivery report
+\`\`\`
+
+## Tech Stack
+- Existing project stack unless research identifies a blocker.
+
+## Data Flow
+1. Capture project charter.
+2. Verify research and risks.
+3. Produce architecture and execution plan.
+4. Implement one scoped module at a time.
+5. Review and test before final delivery.
+
+## Security Considerations
+- Validate external inputs.
+- Do not commit secrets.
+- Do not bypass review or tests for protected behavior.
+
+## Undefined Dependencies
+- None identified yet.
+`,
+    ".ai-plan/execution-plan.md": `# Execution Plan
+
+## Milestones
+1. Complete research gate.
+2. Complete architecture and worker contracts.
+3. Implement one scoped module.
+4. Review for critical and high-severity issues.
+5. Run tests and generate final delivery report.
+
+## Acceptance Criteria
+${mdList(done)}
+
+## Testing Strategy
+- Run unit tests for changed behavior.
+- Run integration tests when real external boundaries are changed.
+- Capture logs in .ai-testing.
+`,
+    ".ai-plan/worker-contracts.json": jsonBlock(contracts),
+    ".ai-coding/current-task.md": `# Current Coding Task
+
+## User Idea
+${idea}
+
+## Scope Rule
+Implement one module per delegation. Write tests with behavior changes. Record changed files and verification evidence.
+`,
+    ".ai-coding/changes.log": "",
+    ".ai-review/review-brief.md": `# Review Brief
+
+## Architecture
+.ai-plan/architecture.md
+
+## Plan
+.ai-plan/execution-plan.md
+
+## Code
+Project directory
+
+## Tests
+tests/
+
+## Mandate
+Assume this code is broken until proven otherwise.
+`,
+    ".ai-review/iteration-count.txt": "0\n",
+    ".ai-testing/test-manifest.md": `# Test Manifest
+
+## Unit Tests
+- Run the repository's unit test command.
+
+## Integration Scenarios
+- Exercise changed workflows end to end where practical.
+
+## Environment Requirements
+- Local project dependencies installed.
+
+## Acceptance Criteria
+${mdList(done)}
+`,
+    "PROJECT-DELIVERY-REPORT.md": `# Project Delivery Report
+
+## Executive Summary
+Lifecycle artifacts have been generated for: ${idea}
+
+## Stage Archive
+- Research: .ai-research/research-report.md
+- Plan: .ai-plan/architecture.md and .ai-plan/execution-plan.md
+- Coding: .ai-coding/current-task.md
+- Review: .ai-review/review-brief.md
+- Test: .ai-testing/test-manifest.md
+
+## Deliverables
+- Structured workflow archive
+- Worker contracts
+- Test manifest
+
+## Next Steps
+- Complete research sources.
+- Fill implementation details during the coding stage.
+- Run the test manifest and update this report with results.
+`,
+  };
+
+  return artifacts;
+}
+
+export function writeLifecycleArtifacts(outputDir, args = {}) {
+  const targetDir = resolve(outputDir || ".");
+  const artifacts = buildLifecycleArtifacts(args);
+  const files = [];
+
+  for (const [relativePath, content] of Object.entries(artifacts)) {
+    const targetPath = resolve(targetDir, relativePath);
+    mkdirSync(dirname(targetPath), { recursive: true });
+    writeFileSync(targetPath, String(content), "utf8");
+    files.push(relativePath);
+  }
+
+  return {
+    status: "generated",
+    output_dir: targetDir,
+    files,
   };
 }

@@ -6,6 +6,7 @@ import {
   createFinalReport,
   createPlanningPacket,
   createWorkerResult,
+  writeLifecycleArtifacts,
 } from "./lib.js";
 
 function parseArgs(argv) {
@@ -51,6 +52,7 @@ function usage() {
   node team-flow.js init --task "..." [--output ./.team-flow]
   node team-flow.js worker --worker planner|coder|qa_reviewer --status done --summary "..." [--output ./.team-flow]
   node team-flow.js finalize [--output ./.team-flow]
+  node team-flow.js lifecycle --idea "..." [--user "Non-technical founder"] [--constraints "..."] [--done "..."] [--output .]
 `);
   process.exit(1);
 }
@@ -138,6 +140,12 @@ function finalizeFlow(args) {
   console.log(JSON.stringify(report, null, 2));
 }
 
+function lifecycleFlow(args) {
+  const outputDir = resolve(process.cwd(), args.output || ".");
+  const result = writeLifecycleArtifacts(outputDir, args);
+  console.log(JSON.stringify(result, null, 2));
+}
+
 function main() {
   const [, , command, ...rest] = process.argv;
   if (!command) usage();
@@ -156,6 +164,11 @@ function main() {
 
   if (command === "finalize") {
     finalizeFlow(args);
+    return;
+  }
+
+  if (command === "lifecycle") {
+    lifecycleFlow(args);
     return;
   }
 
