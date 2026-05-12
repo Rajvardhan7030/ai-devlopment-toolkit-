@@ -76,9 +76,9 @@ allowed_commands = ["npm test", "pytest", "git status"]
 Expose the orchestration helper and existing runtime helpers from your project root:
 
 ```bash
-codex mcp add team-orchestrator ./mcp-servers/team-orchestrator
-codex mcp add test-runner ./mcp-servers/test-runner
-codex mcp add git-helper ./mcp-servers/git-helper
+codex mcp add team-orchestrator node ./mcp-servers/team-orchestrator/index.js
+codex mcp add test-runner node ./mcp-servers/test-runner/index.js
+codex mcp add git-helper python3 ./mcp-servers/git-helper/main.py
 ```
 
 ## Local Team Flow CLI

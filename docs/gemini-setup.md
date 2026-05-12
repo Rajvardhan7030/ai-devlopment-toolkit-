@@ -147,13 +147,13 @@ Gemini CLI will automatically read this file for context.
 
 ```bash
 # Add the test runner MCP
-gemini mcp add test-runner ./mcp-servers/test-runner
+gemini mcp add test-runner node ./mcp-servers/test-runner/index.js
 
 # Add the git helper MCP
-gemini mcp add git-helper ./mcp-servers/git-helper
+gemini mcp add git-helper python3 ./mcp-servers/git-helper/main.py
 
 # Add the team orchestrator MCP
-gemini mcp add team-orchestrator ./mcp-servers/team-orchestrator
+gemini mcp add team-orchestrator node ./mcp-servers/team-orchestrator/index.js
 ```
 
 ## Local Team Flow CLI

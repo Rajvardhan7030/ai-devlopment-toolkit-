@@ -211,18 +211,22 @@ MCP servers expose helper tools to compatible AI clients.
 
 ### Add MCP Servers To Gemini
 
+Run these from the repository root so the relative entrypoint paths resolve correctly:
+
 ```bash
-gemini mcp add team-orchestrator ./mcp-servers/team-orchestrator
-gemini mcp add test-runner ./mcp-servers/test-runner
-gemini mcp add git-helper ./mcp-servers/git-helper
+gemini mcp add team-orchestrator node ./mcp-servers/team-orchestrator/index.js
+gemini mcp add test-runner node ./mcp-servers/test-runner/index.js
+gemini mcp add git-helper python3 ./mcp-servers/git-helper/main.py
 ```
 
 ### Add MCP Servers To Codex
 
+Run these from the repository root so the relative entrypoint paths resolve correctly:
+
 ```bash
-codex mcp add team-orchestrator ./mcp-servers/team-orchestrator
-codex mcp add test-runner ./mcp-servers/test-runner
-codex mcp add git-helper ./mcp-servers/git-helper
+codex mcp add team-orchestrator node ./mcp-servers/team-orchestrator/index.js
+codex mcp add test-runner node ./mcp-servers/test-runner/index.js
+codex mcp add git-helper python3 ./mcp-servers/git-helper/main.py
 ```
 
 ## Team-Orchestrator CLI
