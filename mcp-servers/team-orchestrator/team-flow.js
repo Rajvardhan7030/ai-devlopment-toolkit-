@@ -50,7 +50,7 @@ function parseListArg(value) {
 function usage() {
   console.error(`Usage:
   node team-flow.js init --task "..." [--output ./.team-flow]
-  node team-flow.js worker --worker planner|coder|qa_reviewer --status done --summary "..." [--output ./.team-flow]
+  node team-flow.js worker --worker planner|coder|qa_reviewer|doc_updater --status done --summary "..." [--output ./.team-flow]
   node team-flow.js finalize [--output ./.team-flow]
   node team-flow.js lifecycle --idea "..." [--user "Non-technical founder"] [--constraints "..."] [--done "..."] [--output .]
 `);
@@ -82,6 +82,7 @@ function initFlow(args) {
   writeJson(resolve(outputDir, "planner-contract.json"), packet.worker_contracts.planner);
   writeJson(resolve(outputDir, "coder-contract.json"), packet.worker_contracts.coder);
   writeJson(resolve(outputDir, "qa-reviewer-contract.json"), packet.worker_contracts.qa_reviewer);
+  writeJson(resolve(outputDir, "doc-updater-contract.json"), packet.worker_contracts.doc_updater);
 
   console.log(JSON.stringify({
     status: "initialized",
@@ -91,6 +92,7 @@ function initFlow(args) {
       "planner-contract.json",
       "coder-contract.json",
       "qa-reviewer-contract.json",
+      "doc-updater-contract.json",
     ],
   }, null, 2));
 }
@@ -128,12 +130,22 @@ function finalizeFlow(args) {
   const plannerResult = readJson(resolve(outputDir, "planner-result.json"));
   const coderResult = readJson(resolve(outputDir, "coder-result.json"));
   const qaResult = readJson(resolve(outputDir, "qa_reviewer-result.json"));
+  let docResult = {};
+
+  try {
+    docResult = readJson(resolve(outputDir, "doc_updater-result.json"));
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
 
   const report = createFinalReport({
     manager_brief: packet.manager_brief,
     planner_result: plannerResult,
     coder_result: coderResult,
     qa_result: qaResult,
+    doc_updater_result: docResult,
   });
 
   writeJson(resolve(outputDir, "final-report.json"), report);

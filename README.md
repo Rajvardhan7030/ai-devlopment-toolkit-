@@ -17,6 +17,7 @@ User request
   -> Planner
   -> Coder
   -> QA reviewer
+  -> Doc updater
   -> Tests and final report
 ```
 
@@ -26,8 +27,9 @@ The result is a repeatable workflow where each stage has a clear job and a writt
 
 - Gemini CLI commands for review, debugging, refactoring, team tasks, and feature delivery.
 - Codex CLI agent configuration for manager, planner, coder, reviewer, debugger, and QA reviewer roles.
+- ECC-inspired reusable skills for planning, code review, and documentation updates.
 - MCP servers for test execution, git inspection, and team orchestration.
-- Local `team-flow` CLI for generating planning packets, worker contracts, worker result records, and final reports.
+- Local `team-flow` CLI for generating planning packets, worker contracts, documentation-update handoffs, worker result records, and final reports.
 - Full lifecycle archive generator for non-technical users and manager agents.
 - Starter context files: `GEMINI.md` and `AGENTS.md`.
 - Node built-in tests for the team orchestration lifecycle generator.
@@ -39,7 +41,8 @@ The result is a repeatable workflow where each stage has a clear job and a writt
 |-- .codex/                         # Codex CLI configuration template
 |-- .gemini/
 |   |-- agent/                      # Gemini agent role prompts
-|   `-- commands/                   # Gemini slash command definitions
+|   |-- commands/                   # Gemini slash command definitions
+|   `-- skills/                     # Reusable Gemini skill packages
 |-- docs/
 |   |-- codex-setup.md              # Codex setup guide
 |   |-- gemini-setup.md             # Gemini setup guide
@@ -56,7 +59,7 @@ The result is a repeatable workflow where each stage has a clear job and a writt
 `-- README.md
 ```
 
-Local workflow runs may also create `.ai-manager`, `.ai-research`, `.ai-plan`, `.ai-coding`, `.ai-review`, and `.ai-testing`. These are audit artifacts for the current run and normally should not be committed unless you intentionally want to preserve them.
+Local workflow runs may also create `.ai-manager`, `.ai-research`, `.ai-plan`, `.ai-coding`, `.ai-review`, `.ai-docs`, and `.ai-testing`. These are audit artifacts for the current run and normally should not be committed unless you intentionally want to preserve them.
 
 ## Requirements
 
@@ -153,6 +156,7 @@ This writes:
 - `.ai-plan/worker-contracts.json`
 - `.ai-coding/current-task.md`
 - `.ai-review/review-brief.md`
+- `.ai-docs/doc-update-brief.md`
 - `.ai-testing/test-manifest.md`
 - `PROJECT-DELIVERY-REPORT.md`
 
@@ -188,6 +192,17 @@ node mcp-servers/team-orchestrator/team-flow.js lifecycle \
 | `@verifier` | Runs verification and reports evidence |
 | `@architect` | Helps with architecture and design analysis |
 
+## Gemini Skills
+
+| Skill | Purpose |
+| --- | --- |
+| `planner` | Creates scoped implementation plans with risks, verification, and documentation impact |
+| `reviewer` | Reviews diffs for concrete defects, security issues, regressions, and missing verification |
+| `doc-update` | Updates README files, setup docs, codemaps, and delivery notes from code and workflow changes |
+| `debugger` | Diagnoses bugs, applies minimal fixes, and verifies results |
+| `security-audit` | Reviews code and dependencies for security risks |
+| `performance` | Identifies bottlenecks and verifies optimization impact |
+
 ## Codex Agents
 
 | Agent | Role |
@@ -198,6 +213,7 @@ node mcp-servers/team-orchestrator/team-flow.js lifecycle \
 | `qa_reviewer` | Tests and reviews implementation quality |
 | `debugger` | Fixes bugs with focused diagnosis |
 | `reviewer` | Reviews code for correctness, security, and regression risk |
+| `doc_updater` | Updates documentation and codemaps to match implemented behavior |
 
 ## MCP Servers
 
@@ -258,6 +274,7 @@ Creates:
 - `.team-flow/planner-contract.json`
 - `.team-flow/coder-contract.json`
 - `.team-flow/qa-reviewer-contract.json`
+- `.team-flow/doc-updater-contract.json`
 
 ### `worker`
 
@@ -270,6 +287,18 @@ node mcp-servers/team-orchestrator/team-flow.js worker \
   --summary "implemented CSV import validation" \
   --changed_files "api/users.py,services/import_users.py,tests/test_import_users.py" \
   --verification "pytest tests/test_import_users.py" \
+  --output .team-flow
+```
+
+For documentation updates, record the `doc_updater` handoff:
+
+```bash
+node mcp-servers/team-orchestrator/team-flow.js worker \
+  --worker doc_updater \
+  --status done \
+  --summary "updated import workflow documentation" \
+  --changed_files "README.md,docs/import-users.md" \
+  --verification "confirmed documented commands and files exist" \
   --output .team-flow
 ```
 
@@ -287,7 +316,7 @@ Supported fields:
 
 ### `finalize`
 
-Combines planning and worker outputs into a final JSON report.
+Combines planning and worker outputs into a final JSON report. If `.team-flow/doc_updater-result.json` exists, the report also includes `documentation_summary`, `documentation_status`, and `documentation_files`.
 
 ```bash
 node mcp-servers/team-orchestrator/team-flow.js finalize --output .team-flow
@@ -299,7 +328,7 @@ Creates:
 
 ### `lifecycle`
 
-Creates a complete five-stage workflow archive from a plain-language idea.
+Creates a complete workflow archive from a plain-language idea.
 
 ```bash
 node mcp-servers/team-orchestrator/team-flow.js lifecycle \
@@ -434,6 +463,7 @@ Then open:
 - `.ai-research/research-report.md` to fill or review sources and risks
 - `.ai-plan/execution-plan.md` to see the implementation phases
 - `.ai-review/review-brief.md` to understand what review must check
+- `.ai-docs/doc-update-brief.md` to see which docs should be updated
 - `.ai-testing/test-manifest.md` to see how the result should be verified
 - `PROJECT-DELIVERY-REPORT.md` for the final summary
 

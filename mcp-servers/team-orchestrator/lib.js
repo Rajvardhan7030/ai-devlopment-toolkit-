@@ -115,6 +115,34 @@ export function buildWorkerContract(worker, brief) {
     };
   }
 
+  if (worker === "doc_updater") {
+    return {
+      worker: "doc_updater",
+      objective: "Update user-facing documentation and codemaps so they match the implemented behavior.",
+      inputs: commonInputs,
+      allowed_scope: [
+        "README files, setup guides, command references, codemaps, and generated delivery notes",
+        "Do not edit product code",
+        "Do not invent unsupported commands, options, or verification results",
+      ],
+      deliverable: [
+        "Documentation summary",
+        "Changed documentation files",
+        "Verified commands, links, or examples",
+        "Any documentation intentionally left unchanged",
+      ],
+      verification_needed: [
+        "Confirm documented files, commands, and generated artifacts exist",
+        "Run documentation-related checks when the repository provides them",
+      ],
+      escalate_if: [
+        "The implementation behavior is unclear",
+        "Docs and code conflict",
+        "Required examples cannot be verified",
+      ],
+    };
+  }
+
   return {
     worker: "qa_reviewer",
     objective: "Verify the implementation and review it for regressions and residual risk.",
@@ -145,6 +173,7 @@ export function buildExecutionPlan(brief) {
     "Planner defines scope, risks, target files, and verification approach.",
     "Coder implements the minimum scoped change.",
     "QA reviewer validates behavior, checks regressions, and reports residual risk.",
+    "Doc updater refreshes README, setup docs, codemaps, and delivery notes when behavior or commands changed.",
     "Manager reconciles outputs and returns the final delivery report.",
   ];
 
@@ -159,12 +188,13 @@ export function createPlanningPacket(args = {}) {
   const brief = buildManagerBrief(args);
   return {
     manager_brief: brief,
-    execution_order: ["planner", "coder", "qa_reviewer"],
+    execution_order: ["planner", "coder", "qa_reviewer", "doc_updater"],
     execution_plan: buildExecutionPlan(brief),
     worker_contracts: {
       planner: buildWorkerContract("planner", brief),
       coder: buildWorkerContract("coder", brief),
       qa_reviewer: buildWorkerContract("qa_reviewer", brief),
+      doc_updater: buildWorkerContract("doc_updater", brief),
     },
   };
 }
@@ -187,12 +217,16 @@ export function createFinalReport(args = {}) {
   const plannerResult = args.planner_result || {};
   const coderResult = args.coder_result || {};
   const qaResult = args.qa_result || {};
+  const docResult = args.doc_result || args.doc_updater_result || {};
 
   return {
     objective: managerBrief.objective || "",
     success_criteria: managerBrief.success_criteria || [],
     implementation_summary: coderResult.summary || "",
+    documentation_summary: docResult.summary || "",
+    documentation_status: docResult.status || "",
     changed_files: coderResult.changed_files || [],
+    documentation_files: docResult.changed_files || [],
     verification_summary: qaResult.verification || [],
     findings: qaResult.findings || [],
     residual_risk: qaResult.residual_risk || [],
@@ -200,8 +234,9 @@ export function createFinalReport(args = {}) {
       ...(plannerResult.blockers || []),
       ...(coderResult.blockers || []),
       ...(qaResult.blockers || []),
+      ...(docResult.blockers || []),
     ],
-    final_status: qaResult.status || coderResult.status || plannerResult.status || "unknown",
+    final_status: qaResult.status || coderResult.status || plannerResult.status || docResult.status || "unknown",
   };
 }
 
@@ -257,6 +292,20 @@ function buildLifecycleWorkerContracts(idea, constraints, done) {
         "High-severity findings produce fix tickets before testing proceeds",
       ],
     },
+    doc_updater: {
+      objective: "Keep README files, setup docs, codemaps, and delivery reports synchronized with implementation and workflow changes.",
+      inputs: [".ai-plan/execution-plan.md", ".ai-review/review-report.md", ".ai-testing/test-manifest.md", "Project documentation"],
+      deliverables: [
+        "README.md",
+        "docs/",
+        "PROJECT-DELIVERY-REPORT.md",
+      ],
+      acceptance_criteria: [
+        "Documented commands and generated files match the repository",
+        "New or changed workflow behavior is explained for technical and non-technical users",
+        "Documentation updates do not claim unverified test results",
+      ],
+    },
     tester: {
       objective: "Execute the test manifest and summarize pass/fail evidence.",
       inputs: [".ai-testing/test-manifest.md"],
@@ -303,6 +352,7 @@ ${mdList(done)}
         { stage: "plan", status: "pending", iterations: 0 },
         { stage: "coding", status: "pending", iterations: 0 },
         { stage: "review", status: "pending", iterations: 0 },
+        { stage: "documentation", status: "pending", iterations: 0 },
         { stage: "test", status: "pending", iterations: 0 },
       ],
     }),
@@ -355,7 +405,7 @@ Read the project charter and research report. Produce architecture, execution pl
 
 ## System Diagram
 \`\`\`text
-User idea -> Research -> Plan -> Code -> Review -> Test -> Delivery report
+User idea -> Research -> Plan -> Code -> Review -> Docs -> Test -> Delivery report
 \`\`\`
 
 ## Tech Stack
@@ -366,7 +416,8 @@ User idea -> Research -> Plan -> Code -> Review -> Test -> Delivery report
 2. Verify research and risks.
 3. Produce architecture and execution plan.
 4. Implement one scoped module at a time.
-5. Review and test before final delivery.
+5. Review and update docs before final testing.
+6. Test before final delivery.
 
 ## Security Considerations
 - Validate external inputs.
@@ -383,7 +434,8 @@ User idea -> Research -> Plan -> Code -> Review -> Test -> Delivery report
 2. Complete architecture and worker contracts.
 3. Implement one scoped module.
 4. Review for critical and high-severity issues.
-5. Run tests and generate final delivery report.
+5. Update README, setup docs, codemaps, and delivery notes if behavior changed.
+6. Run tests and generate final delivery report.
 
 ## Acceptance Criteria
 ${mdList(done)}
@@ -421,6 +473,22 @@ tests/
 Assume this code is broken until proven otherwise.
 `,
     ".ai-review/iteration-count.txt": "0\n",
+    ".ai-docs/doc-update-brief.md": `# Documentation Update Brief
+
+## Inputs
+- .ai-plan/execution-plan.md
+- .ai-review/review-report.md
+- .ai-testing/test-manifest.md
+- README.md
+- docs/
+
+## Mandate
+Update documentation only where behavior, setup, commands, generated artifacts, or user workflow changed.
+
+## Verification
+- Confirm documented files and commands exist.
+- Do not claim tests passed unless the test stage provides evidence.
+`,
     ".ai-testing/test-manifest.md": `# Test Manifest
 
 ## Unit Tests
@@ -445,6 +513,7 @@ Lifecycle artifacts have been generated for: ${idea}
 - Plan: .ai-plan/architecture.md and .ai-plan/execution-plan.md
 - Coding: .ai-coding/current-task.md
 - Review: .ai-review/review-brief.md
+- Docs: .ai-docs/doc-update-brief.md
 - Test: .ai-testing/test-manifest.md
 
 ## Deliverables

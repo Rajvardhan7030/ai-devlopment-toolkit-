@@ -8,6 +8,7 @@ Team structure:
 - Planner: creates the execution plan
 - Coder: implements the scoped change
 - QA Reviewer: verifies behavior and reviews residual risk
+- Doc Updater: updates README files, guides, codemaps, and delivery notes when needed
 
 Task: {{$input}}
 
@@ -17,11 +18,13 @@ Manager workflow:
 3. Call `team-orchestrator.create_planning_packet` to generate the manager brief and worker contracts.
 4. Delegate using the generated strict task contracts.
 5. Require each worker to answer only within its contract.
-6. Normalize each worker handoff with `team-orchestrator.record_worker_result`.
-7. Resolve conflicts using code evidence and test output.
-8. Build the final output with `team-orchestrator.assemble_final_report`.
-9. Return:
+6. Run the generated doc updater contract after implementation review when behavior or workflow docs changed.
+7. Normalize each worker handoff with `team-orchestrator.record_worker_result`.
+8. Resolve conflicts using code evidence, documentation evidence, and test output.
+9. Build the final output with `team-orchestrator.assemble_final_report`.
+10. Return:
    - implementation summary
+   - documentation summary
    - verification summary
    - residual risk
 

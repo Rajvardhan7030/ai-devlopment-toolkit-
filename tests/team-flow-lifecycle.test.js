@@ -32,6 +32,7 @@ test("buildLifecycleArtifacts creates required lifecycle files", () => {
     ".ai-plan/worker-contracts.json",
     ".ai-coding/current-task.md",
     ".ai-review/review-brief.md",
+    ".ai-docs/doc-update-brief.md",
     ".ai-testing/test-manifest.md",
     "PROJECT-DELIVERY-REPORT.md",
   ];
@@ -44,7 +45,13 @@ test("buildLifecycleArtifacts creates required lifecycle files", () => {
   const contracts = JSON.parse(artifacts[".ai-plan/worker-contracts.json"]);
   assert.equal(contracts.research.deliverable, ".ai-research/research-report.md");
   assert.equal(contracts.reviewer.deliverable, ".ai-review/review-report.md");
+  assert.deepEqual(contracts.doc_updater.deliverables, [
+    "README.md",
+    "docs/",
+    "PROJECT-DELIVERY-REPORT.md",
+  ]);
   assert.match(artifacts[".ai-manager/project-charter.md"], /Non-technical founder/);
+  assert.match(artifacts["PROJECT-DELIVERY-REPORT.md"], /\.ai-docs\/doc-update-brief\.md/);
 });
 
 test("writeLifecycleArtifacts writes the workflow archive to the requested output directory", () => {
@@ -94,13 +101,16 @@ test("orchestrator helpers normalize inputs and build worker handoffs", () => {
     files: "lib.js",
     success_criteria: "tests pass",
   });
-  assert.deepEqual(packet.execution_order, ["planner", "coder", "qa_reviewer"]);
+  assert.deepEqual(packet.execution_order, ["planner", "coder", "qa_reviewer", "doc_updater"]);
   assert.match(packet.execution_plan.join("\n"), /Primary files to inspect: lib.js/);
 
   const plannerContract = buildWorkerContract("planner", brief);
   const qaContract = buildWorkerContract("qa_reviewer", brief);
+  const docContract = buildWorkerContract("doc_updater", brief);
   assert.equal(plannerContract.worker, "planner");
   assert.equal(qaContract.worker, "qa_reviewer");
+  assert.equal(docContract.worker, "doc_updater");
+  assert.match(docContract.objective, /documentation/);
 
   const workerResult = createWorkerResult({
     worker: "coder",
@@ -114,7 +124,15 @@ test("orchestrator helpers normalize inputs and build worker handoffs", () => {
     manager_brief: brief,
     coder_result: workerResult,
     qa_result: { status: "passed", verification: ["node --test"], findings: [] },
+    doc_updater_result: {
+      status: "updated",
+      summary: "Updated README",
+      changed_files: ["README.md"],
+    },
   });
   assert.equal(finalReport.final_status, "passed");
   assert.deepEqual(finalReport.changed_files, ["lib.js", "test.js"]);
+  assert.equal(finalReport.documentation_summary, "Updated README");
+  assert.equal(finalReport.documentation_status, "updated");
+  assert.deepEqual(finalReport.documentation_files, ["README.md"]);
 });

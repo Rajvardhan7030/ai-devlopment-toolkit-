@@ -76,6 +76,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             planner_result: { type: "object" },
             coder_result: { type: "object" },
             qa_result: { type: "object" },
+            doc_updater_result: { type: "object" },
           },
           required: ["manager_brief", "coder_result", "qa_result"],
         },

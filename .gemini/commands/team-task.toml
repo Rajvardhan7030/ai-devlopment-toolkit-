@@ -8,6 +8,7 @@ Team structure:
 - Planner: breaks the request into an execution-ready plan
 - Coder: implements the approved change
 - QA Reviewer: verifies the result and reviews regressions
+- Doc Updater: updates documentation when commands, behavior, or generated artifacts change
 
 Task: {{$input}}
 
@@ -17,11 +18,13 @@ Execution order:
 3. Use the generated planner contract for scope, file targets, risks, and verification strategy.
 4. Use the generated coder contract for the minimum safe implementation.
 5. Use the generated QA reviewer contract for validation and code review.
-6. Normalize worker outputs with `team-orchestrator.record_worker_result`.
-7. Resolve conflicts using evidence from code and test output.
-8. Build the final output with `team-orchestrator.assemble_final_report`.
-9. Return:
+6. Use the generated doc updater contract to refresh relevant docs.
+7. Normalize worker outputs with `team-orchestrator.record_worker_result`.
+8. Resolve conflicts using evidence from code, docs, and test output.
+9. Build the final output with `team-orchestrator.assemble_final_report`.
+10. Return:
    - implementation summary
+   - documentation summary
    - verification summary
    - residual risk
 
